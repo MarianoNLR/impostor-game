@@ -15,7 +15,7 @@ export const registerRoomHandlers = (io: Server, socket: Socket) => {
         }
 
         const roomOwner = socket.data.nickname;
-        const newRoom : Room = { id: roomId, name: `${roomOwner}'s Room`, players: [{ id: socket.id, nickname: roomOwner, role: "unassigned", isAlive: true }], host: socket.id, game: null };
+        const newRoom : Room = { id: roomId, name: `${roomOwner}'s Room`, state: "lobby", players: [{ id: socket.id, nickname: roomOwner, role: "unassigned", isAlive: true }], host: socket.id, game: null };
         roomRepository.save(newRoom);
         socket.data.roomCode = roomId;
         socket.join(roomId);
