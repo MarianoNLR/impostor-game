@@ -5,6 +5,7 @@
       "dom.iterable",
       "esnext"
     ],
+    "tsBuildInfoFile": ".tsbuildinfo",
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -30,8 +31,9 @@
   },
   "include": [
     "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
+    "app",
+    "pages",
+    "components",
     ".next/types/**/*.ts"
   ],
   "exclude": [
