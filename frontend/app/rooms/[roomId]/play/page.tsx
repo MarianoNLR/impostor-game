@@ -1,0 +1,173 @@
+"use client";
+
+import { useParams } from "next/navigation"
+import { useEffect, useState } from "react";
+import { Player, Room, GameState } from '@/types/index';
+import { useSocket } from '@/context/SocketContext';
+import { PlayerCardGame } from "@/components/game/PlayerCardGame";
+import { Timer } from '@/components/lobby/Timer'
+import { VotingPhaseUI } from "@/components/game/VotingPhaseUI";
+import { DiscussionPhaseUI } from "@/components/game/DiscussionPhaseUI";
+import { FinishedPhaseUI } from "@/components/game/FinishedPhaseUI";
+import { WordsPhaseUI } from "@/components/game/WordsPhaseUI";
+import { useRouter } from "next/navigation";
+import { RoomChat } from "@/components/game/RoomChat";
+
+type PlayerInfo = {
+    role: string;
+    word: string | null;
+    category: string | null;
+    players: Player[];
+}
+
+export default function PlayPage() {
+    const params = useParams();
+    const socket = useSocket();
+    const router = useRouter();
+    const { roomId } = params;
+    //const storedData = JSON.parse(localStorage.getItem("playerGameInfo") || "{}");
+    const [playerInfo, setPlayerInfo] = useState<PlayerInfo | null>(null);
+    // const [role, setRole] = useState(storedData.role || "undefined");
+    // const [players, setPlayers] = useState<Player[]>(storedData.players || []);
+    const [gameState, setGameState] = useState<GameState | null>(null);
+    const [wordInput, setWordInput] = useState("");
+    const [playerAlreadyVoted, setPlayerAlreadyVoted] = useState(false)
+    const [turnTimer, setTurnTimer] = useState<number>(30)
+    const [currentUserId, setCurrentUserId] = useState("");
+
+    useEffect(() => {
+        if (!socket) {
+            return;
+        }
+
+        const setSocketId = () => {
+            setCurrentUserId(socket.id ?? "");
+        };
+
+        setSocketId();
+        socket.on("connect", setSocketId);
+
+        return () => {
+            socket.off("connect", setSocketId);
+        };
+    }, [socket]);
+
+    useEffect(() => {
+        socket?.emit("getMyRole", { roomId })
+
+        const handleRoleAssigned = ({ role, word, category, players }: { role: string; word: string | null; category: string | null; players: Player[] }) => {
+            console.log(`Received role assignment: ${role}`);
+            setPlayerInfo({ role, word, category, players });
+        }
+        socket?.on("roleAssigned", handleRoleAssigned);
+
+        return () => {
+            socket?.off("roleAssigned", handleRoleAssigned);
+        }
+    }, [socket, roomId])
+
+    useEffect(() => {
+        socket?.emit("getGameState", { roomId })
+        const handleGameState = ({ room }: { room: Room | null }) => {
+            if (!room) {
+                return
+            
+            }
+
+            if (!room.game) {
+                 return 
+            }
+            setGameState(room.game)
+        }
+
+        socket?.on("gameState", handleGameState)
+
+        return() => {
+            socket?.off("gameState", handleGameState)
+        }
+    }, [socket, roomId])
+
+    useEffect(() => {
+        const handleTimerUpdate = ({ timeLeft }: { timeLeft: number}) => {
+            setTurnTimer(timeLeft)
+        }
+
+        socket?.on("timerUpdate", handleTimerUpdate)
+
+        return () => {
+            socket?.off("timerUpdate", handleTimerUpdate)
+        }
+    }, [socket])
+
+    if (!gameState) {
+        return (
+            <main>
+                <h1 className="text-4xl font-bold mb-4">Game Page</h1>
+                <p className="text-2xl">Loading game state...</p>
+            </main>
+        );
+    }
+
+    const onClickSubmitWord = () => {
+        console.log("Enviar palabra al servidor");
+        socket?.emit("submitWord", { roomId, word: wordInput });
+        setWordInput("");
+        setTurnTimer(0)
+    }
+
+    const onVoteClick = (votedPlayerId : string) => {
+        socket?.emit("submitVote", { roomId, votedPlayerId })
+        setPlayerAlreadyVoted(true)
+    }
+
+    if (gameState.state === "finished") {
+        setTimeout(() => {
+            router.push(`/rooms/${roomId}`);
+        }, 5000)
+    }
+    return (
+        <main className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-6 lg:grid-cols-[1fr_360px]">
+            <section>
+            <h1 className="text-4xl font-bold mb-4">Game Page</h1>
+            <h2>Role: {playerInfo?.role}</h2>
+            <p className="text-2xl">{gameState ? `Game State: ${gameState.state}` : "Loading..."}</p>
+            { gameState.state === "words" && (
+                <WordsPhaseUI 
+                    players={playerInfo?.players || []}
+                    gameState={gameState}
+                    roomId={String(roomId)}
+                />
+            )}
+            
+            {/* TODO: voting and discussion UI */}
+            {gameState.state === "voting" && (
+                <VotingPhaseUI 
+                    players={playerInfo?.players || []}
+                    gameState={gameState}
+                    roomId={String(roomId)}
+                    playerAlreadyVoted={playerAlreadyVoted}
+                    onVoteClick={onVoteClick}
+                />
+            )}
+            {gameState.state === "discussion" && (
+                <DiscussionPhaseUI 
+                    socket={socket}
+                    roomId={String(roomId)}
+                    currentUserId={currentUserId}
+                />
+            )}
+
+            {/* Handle Game State finished UI */}
+            {gameState.state === "finished" && (
+                <FinishedPhaseUI 
+                players={playerInfo?.players || []} 
+                gameState={gameState} 
+                />
+            )}
+            {/* Timer */}
+            {gameState.state !== "finished" && <Timer timeLeft={turnTimer} duration={30}/>}
+            </section>
+           
+        </main>
+    )
+}
