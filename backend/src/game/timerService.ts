@@ -27,11 +27,11 @@ onEnd : () => void)
     }
 
     let secondsLeft = duration;
-    io.to(roomId).emit("timerUpdate", { timeLeft: secondsLeft });
+    io.to(roomId).emit("timerUpdate", { timeLeft: secondsLeft, duration });
 
     const interval = setInterval(() => {
         secondsLeft--;
-        io.to(roomId).emit("timerUpdate", { timeLeft: secondsLeft });
+        io.to(roomId).emit("timerUpdate", { timeLeft: secondsLeft, duration });
 
         if (secondsLeft <= 0) {
             clearInterval(interval);
