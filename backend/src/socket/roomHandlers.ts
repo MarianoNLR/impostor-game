@@ -1,6 +1,6 @@
 import { Server, Socket } from "socket.io"
 import { roomRepository } from "../repositories/roomRepository"
-import { Room } from '../data/store'
+import { Room } from '../types'
 import crypto from "crypto"
 
 export const registerRoomHandlers = (io: Server, socket: Socket) => {
@@ -15,7 +15,7 @@ export const registerRoomHandlers = (io: Server, socket: Socket) => {
         }
 
         const roomOwner = socket.data.nickname;
-        const newRoom : Room = { id: roomId, name: `${roomOwner}'s Room`, state: "lobby", players: [{ id: socket.id, nickname: roomOwner, role: "unassigned", isAlive: true }], host: socket.id, game: null };
+        const newRoom : Room = { id: roomId, name: `${roomOwner}'s Room`, state: "lobby", players: [{ id: socket.id, nickname: roomOwner, role: "unassigned", isAlive: true }], host: socket.id, game: null, chat: { messages: [] } };
         roomRepository.save(newRoom);
         socket.data.roomCode = roomId;
         socket.join(roomId);
@@ -23,7 +23,7 @@ export const registerRoomHandlers = (io: Server, socket: Socket) => {
 
         socket.emit("roomCreated", { roomId });
         
-        io.emit("roomsUpdated", {rooms: roomRepository.findAll().map(room => ({ id: room.id, name: room.name, players: room.players, host: room.host, game: room.game }))});
+        io.emit("roomsUpdated", {rooms: roomRepository.findAll().map(room => ({ id: room.id, name: room.name, players: room.players, host: room.host, game: room.game, chat: room.chat }))});
     })
 
     socket.on("joinRoom", ({ roomId }) => {
