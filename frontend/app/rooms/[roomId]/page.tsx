@@ -6,6 +6,8 @@ import { useEffect, useState } from 'react';
 import { PlayersListLobby } from '@/components/lobby/PlayersListLobby';
 import { Player, Room } from '@/types/index';
 import { useRouter } from 'next/navigation';
+import { RoomChat } from '@/components/game/RoomChat';
+
 export default function RoomPage() {
     const router = useRouter();
     const params = useParams();
@@ -73,10 +75,13 @@ export default function RoomPage() {
     }
 
     return (
-        <main className="flex flex-col items-center justify-center min-h-screen">
-            <h1 className="text-4xl font-bold mb-4">Room</h1>
-            <h2>Room ID: {roomId}</h2>
+        <main className="flex min-h-screen flex-col items-center justify-center px-4 py-10">
+            <h1 className="text-4xl font-bold mb-4">Sala de espera</h1>
+            {/* <h2>Room ID: {roomId}</h2> */}
             {roomData && <PlayersListLobby players={players} />}
+            <div className="mt-5 w-full max-w-2xl">
+                <RoomChat socket={socket} roomId={String(roomId)} currentUserId={socket?.id || ''} />
+            </div>
             {roomData?.host == socket?.id && 
                 <button className="mt-4 p-2 pr-10 pl-10 bg-green-500 text-white rounded-sm" 
                 onClick={onClickStartGame}>Start Game

@@ -11,13 +11,12 @@ interface VotingPhaseUIProps {
 
 export function VotingPhaseUI({ players, gameState, roomId, playerAlreadyVoted, onVoteClick }: VotingPhaseUIProps) {
     return (
-        <div>
-            <h1 className="text-4xl font-bold mb-4">Game Page</h1>
-            <p className="text-2xl">Voting phase - UI</p>
+        <div className="mx-auto w-full max-w-5xl text-center">
+            <p className="text-2xl">Es momento de votar!</p>
             {players.length > 0 && (
                 <div>
-                    <h3 className="text-xl font-bold mt-4">Players:</h3>
-                    <div className="flex flex-wrap gap-4 mt-2">
+                    <h3 className="text-xl font-bold mt-4">Jugadores:</h3>
+                    <div className="mt-2 flex flex-wrap justify-center gap-4">
                         {players.map((p) => (
                             <PlayerCardGame 
                             key={p.id}
@@ -25,7 +24,7 @@ export function VotingPhaseUI({ players, gameState, roomId, playerAlreadyVoted, 
                             nickname={p.nickname} 
                             role={p.role}
                             showRole={true}
-                            phase={gameState.state}
+                            phase={gameState.phase}
                             roomId={String(roomId)}
                             playerAlreadyVoted={playerAlreadyVoted}
                             onVote={onVoteClick}

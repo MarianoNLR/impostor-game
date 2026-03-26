@@ -32,8 +32,20 @@ export default function PlayPage() {
     const [gameState, setGameState] = useState<GameState | null>(null);
     const [wordInput, setWordInput] = useState("");
     const [playerAlreadyVoted, setPlayerAlreadyVoted] = useState(false)
-    const [turnTimer, setTurnTimer] = useState<number>(30)
+    const [turnTimer, setTurnTimer] = useState<{ timeLeft: number; duration: number }>({ timeLeft: 30, duration: 30 });
     const [currentUserId, setCurrentUserId] = useState("");
+
+    const gamePhasesMap : { [key: string]: string } = {
+        "words": "Palabras",
+        "voting": "Votación",
+        "discussion": "Discusión",
+        "finished": "Finalizado"
+    }
+
+    const roleMap : { [key: string]: string } = {
+        "impostor": "Impostor",
+        "crewmate": "Neutral"
+    }
 
     useEffect(() => {
         if (!socket) {
@@ -88,8 +100,8 @@ export default function PlayPage() {
     }, [socket, roomId])
 
     useEffect(() => {
-        const handleTimerUpdate = ({ timeLeft }: { timeLeft: number}) => {
-            setTurnTimer(timeLeft)
+        const handleTimerUpdate = ({ timeLeft, duration }: { timeLeft: number; duration: number }) => {
+            setTurnTimer({ timeLeft, duration });
         }
 
         socket?.on("timerUpdate", handleTimerUpdate)
@@ -112,7 +124,7 @@ export default function PlayPage() {
         console.log("Enviar palabra al servidor");
         socket?.emit("submitWord", { roomId, word: wordInput });
         setWordInput("");
-        setTurnTimer(0)
+        setTurnTimer({ timeLeft: 30, duration: 30 }) // Reiniciar el timer al enviar la palabra
     }
 
     const onVoteClick = (votedPlayerId : string) => {
@@ -120,27 +132,27 @@ export default function PlayPage() {
         setPlayerAlreadyVoted(true)
     }
 
-    if (gameState.state === "finished") {
+    if (gameState.phase === "finished") {
         setTimeout(() => {
             router.push(`/rooms/${roomId}`);
         }, 5000)
     }
     return (
-        <main className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-6 lg:grid-cols-[1fr_360px]">
-            <section>
-            <h1 className="text-4xl font-bold mb-4">Game Page</h1>
-            <h2>Role: {playerInfo?.role}</h2>
-            <p className="text-2xl">{gameState ? `Game State: ${gameState.state}` : "Loading..."}</p>
-            { gameState.state === "words" && (
+        <main className="mx-auto w-full max-w-6xl px-4 py-6">
+            <section className="mx-auto w-full max-w-5xl text-center flex flex-col items-center gap-6">
+            <h1 className="text-4xl">{gameState ? `Fase: ${gamePhasesMap[gameState.phase]}` : "Cargando..."}</h1>
+            <h2 className="text-2xl">Tu rol es: {playerInfo ? roleMap[playerInfo.role] : "Cargando..."}</h2>
+            { gameState.phase === "words" && (
                 <WordsPhaseUI 
                     players={playerInfo?.players || []}
                     gameState={gameState}
                     roomId={String(roomId)}
+                    word={playerInfo?.word ?? null}
                 />
             )}
             
             {/* TODO: voting and discussion UI */}
-            {gameState.state === "voting" && (
+            {gameState.phase === "voting" && (
                 <VotingPhaseUI 
                     players={playerInfo?.players || []}
                     gameState={gameState}
@@ -149,23 +161,24 @@ export default function PlayPage() {
                     onVoteClick={onVoteClick}
                 />
             )}
-            {gameState.state === "discussion" && (
+            {gameState.phase === "discussion" && (
                 <DiscussionPhaseUI 
                     socket={socket}
                     roomId={String(roomId)}
                     currentUserId={currentUserId}
+                    role={playerInfo?.role || "unassigned"}
                 />
             )}
 
             {/* Handle Game State finished UI */}
-            {gameState.state === "finished" && (
+            {gameState.phase === "finished" && (
                 <FinishedPhaseUI 
                 players={playerInfo?.players || []} 
                 gameState={gameState} 
                 />
             )}
             {/* Timer */}
-            {gameState.state !== "finished" && <Timer timeLeft={turnTimer} duration={30}/>}
+            {gameState.phase !== "finished" && <Timer timeLeft={turnTimer.timeLeft} duration={turnTimer.duration}/>}
             </section>
            
         </main>
