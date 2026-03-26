@@ -34,7 +34,7 @@ export function Timer({ timeLeft, duration = 30 }: TimerProps) {
             style={{ transition: "stroke 0.3s ease" }}
           />
         </svg>
-        <span className="absolute inset-0 flex items-center justify-center text-2xl font-bold text-black">
+        <span className="absolute inset-0 flex items-center justify-center text-2xl font-bold text-white">
           {timeLeft}
         </span>
       </div>
