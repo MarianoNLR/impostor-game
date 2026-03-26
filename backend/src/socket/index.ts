@@ -1,8 +1,9 @@
 import { Server, Socket } from "socket.io"
 import { registerRoomHandlers } from "./roomHandlers"
-import data, { Room } from "../data/store";
-import { registerGameHandlers } from "./gameHandlers";
+import { Room } from "../types";
+import { registerGameHandlers } from "../game/gameHandlers";
 import { roomRepository } from "../repositories/roomRepository";
+import registerChatHandlers from "../game/chatHandlers";
 
 export const registerSocketHandlers = (io: Server) => {
   io.on("connection", (socket: Socket) => {
@@ -37,5 +38,6 @@ export const registerSocketHandlers = (io: Server) => {
 
     registerRoomHandlers(io, socket);
     registerGameHandlers(io, socket);
+    registerChatHandlers(io, socket);
   });
 }
