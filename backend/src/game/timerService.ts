@@ -27,18 +27,19 @@ onEnd : () => void)
     }
 
     let secondsLeft = duration;
-    const playerId = game.turnOrder[game.currentTurnIndex];
+    io.to(roomId).emit("timerUpdate", { timeLeft: secondsLeft });
+
     const interval = setInterval(() => {
         secondsLeft--;
         io.to(roomId).emit("timerUpdate", { timeLeft: secondsLeft });
 
         if (secondsLeft <= 0) {
             clearInterval(interval);
-            //addWordToSubmissions(room, playerId, "No hint"); // Submit empty word if player didn't submit in time
-            //nextTurn(io, roomId);
+            game.currentTimer = null;
             onEnd();
         }
     }, 1000);
 
+    game.currentTimer = interval;
     return interval;
 }
