@@ -4,15 +4,20 @@ import { GameState, Room, Player } from "../types"
 import { getGameState } from "./gameUtils"
 import { startTimer } from "./timerService"
 import { clearRoomMessages, getRoomChat } from "./chatService"
+import { getRandomWordWithRandomCategory } from "../data/words"
 
 export function initializeGameData(room: Room) {
     if (room.game) {
         clearInterval(room.game.currentTimer!);
     }
+
+    // Get a random word and category for the game
+    const { word, category } = getRandomWordWithRandomCategory();
+
     const gameState : GameState = {
         phase: "words",
-        word: "Apple",
-        category: "Fruits",
+        word: word,
+        category: category,
         turnOrder: room.players.map(player => player.id),
         currentTurnIndex: 0,
         votes: {},
@@ -128,7 +133,7 @@ export function startDiscussionPhase(io: Server, roomId: string) {
     startTimer(
         io, 
         roomId, 
-        5, 
+        100, 
         () => {
             endDiscussionPhase(io, room);
         });
@@ -153,7 +158,7 @@ export function startVotingPhase(io: Server, roomId: string) {
     startTimer(
         io, 
         roomId, 
-        15, 
+        30, 
         () => {
             endVotingPhase(io, room);
         })
