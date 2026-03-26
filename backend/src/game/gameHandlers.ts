@@ -1,5 +1,5 @@
 import { Server, Socket } from "socket.io"
-import { startGame, submitWord, submitVote } from './gameService'
+import { startGame, submitWord, submitVote, getMyRole } from './gameService'
 import { getGameState } from "./gameUtils"
 
 export const registerGameHandlers = (io: Server, socket: Socket) => {
@@ -10,4 +10,5 @@ export const registerGameHandlers = (io: Server, socket: Socket) => {
         console.log(`Received request for game state from client ${socket.id} for room ${roomId}`);
         socket.emit("gameState", { room: getGameState(roomId) });
     })
+    socket.on("getMyRole", ({ roomId }) => getMyRole(socket, io, roomId))
 }
