@@ -1,5 +1,6 @@
 import { Router } from "express";
-import data, { Room } from "../data/store";
+import data from "../data/store";
+import { Room } from "../types";
 
 const roomRouter = Router();
 
