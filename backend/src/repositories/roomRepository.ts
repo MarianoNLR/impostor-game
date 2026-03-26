@@ -1,4 +1,5 @@
-import data, { Room } from "../data/store"
+import data from "../data/store"
+import { Room } from "../types"
 
 export const roomRepository = {
   findById: (roomId: string): Room | null => {
