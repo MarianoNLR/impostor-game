@@ -14,7 +14,7 @@ export type Room = {
 };
 
 export type GameState = {
-  state:  "voting" | "discussion" | "words" | "finished";
+  phase:  "voting" | "discussion" | "words" | "finished";
   word: string;
   category: string;
   turnOrder: string[];
