@@ -36,6 +36,7 @@ export function WordsPhaseUI({ players, gameState, roomId, word }: WordsPhaseUIP
                             showRole={true}
                             phase={gameState.phase}
                             roomId={String(roomId)}
+                            wordsSubmitted={gameState.wordsSubmitted}
                             isAlive={p.isAlive || false}
                             />
                         ))}
