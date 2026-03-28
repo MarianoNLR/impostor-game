@@ -120,13 +120,6 @@ export default function PlayPage() {
         );
     }
 
-    const onClickSubmitWord = () => {
-        console.log("Enviar palabra al servidor");
-        socket?.emit("submitWord", { roomId, word: wordInput });
-        setWordInput("");
-        setTurnTimer({ timeLeft: 30, duration: 30 }) // Reiniciar el timer al enviar la palabra
-    }
-
     const onVoteClick = (votedPlayerId : string) => {
         socket?.emit("submitVote", { roomId, votedPlayerId })
         setPlayerAlreadyVoted(true)
@@ -167,6 +160,8 @@ export default function PlayPage() {
                     roomId={String(roomId)}
                     currentUserId={currentUserId}
                     role={playerInfo?.role || "unassigned"}
+                    players={playerInfo?.players || []}
+                    gameState={gameState}
                 />
             )}
 
