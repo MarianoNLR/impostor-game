@@ -26,6 +26,7 @@ export function VotingPhaseUI({ players, gameState, roomId, playerAlreadyVoted, 
                             showRole={true}
                             phase={gameState.phase}
                             roomId={String(roomId)}
+                            wordsSubmitted={gameState.wordsSubmitted}
                             playerAlreadyVoted={playerAlreadyVoted}
                             onVote={onVoteClick}
                             isAlive={p.isAlive || false}
