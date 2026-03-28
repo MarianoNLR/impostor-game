@@ -8,6 +8,7 @@ type PlayerCardProps = {
   showRole?: boolean,
   phase?: "voting" | "discussion" | "words" | "finished",
   roomId: string,
+  wordsSubmitted?: Record<string, string[]>,
   playerAlreadyVoted?: boolean,
   onVote?: (targetId: string) => void
   isAlive: boolean
@@ -17,6 +18,8 @@ export function PlayerCardGame(props : PlayerCardProps) {
   const socket = useSocket();
   const role = props.role ?? "unassigned"
   const isAlive = props.isAlive ? true : false
+  const submittedWords = props.wordsSubmitted?.[props.id] ?? []
+  const lastSubmittedWord = submittedWords.length > 0 ? submittedWords[submittedWords.length - 1] : null
 
   const roleStyles = {
     crewmate: "text-emerald-400 bg-emerald-400/10 border-emerald-400/30",
@@ -55,6 +58,22 @@ export function PlayerCardGame(props : PlayerCardProps) {
           ${isAlive ? roleStyles[role] : "text-slate-600 bg-slate-800/30 border-slate-700/20"}`}>
           {isAlive ? roleLabel[role] : "Eliminated"}
         </span>
+      )}
+      {lastSubmittedWord && (
+        <div className={`w-full rounded-xl border px-2 py-1.5 text-center shadow-sm
+          ${isAlive
+            ? "border-cyan-400/40 bg-gradient-to-r from-cyan-500/20 to-emerald-500/20"
+            : "border-slate-700/40 bg-slate-800/40"
+          }`}>
+          {/* <p className={`text-[10px] font-semibold uppercase tracking-wider
+            ${isAlive ? "text-cyan-200" : "text-slate-500"}`}>
+            Ultima palabra
+          </p> */}
+          <p className={`mt-0.5 text-xs font-bold italic break-words
+            ${isAlive ? "text-white" : "text-slate-400"}`}>
+            &quot;{lastSubmittedWord}&quot;
+          </p>
+        </div>
       )}
       {props.phase === "voting" && isAlive && socket?.id !== props.id && !props.playerAlreadyVoted && (
         <button onClick={() => props.onVote?.(props.id)} className="flex items-center gap-1 px-2 py-1 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 transition-colors">
