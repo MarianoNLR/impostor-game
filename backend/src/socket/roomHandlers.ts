@@ -33,6 +33,11 @@ export const registerRoomHandlers = (io: Server, socket: Socket) => {
         return socket.emit("joinedRoom", { roomId: null, error: "Room does not exist." });
         }
 
+        if (room.state !== "lobby") {
+            console.log(`Room ID ${roomId} is not in lobby state.`);
+            return socket.emit("joinedRoom", { roomId: null, error: "Room is not open for joining." });
+        }
+
         if (room.players.length >= 10) {
         console.log(`Room ID ${roomId} is full.`);
         return socket.emit("joinedRoom", { roomId: null, error: "Room is full." });
