@@ -36,7 +36,7 @@ export function RoomCard({room}: {room: Room}) {
                     {label}
                 </span>
             </div>
-            <p className="text-gray-400 mb-4">Players: {room.players.length}/10</p>
+            <p className="text-gray-400 mb-4">Jugadores: {room.players.length}/10</p>
             <button
                 className="w-full p-2 bg-blue-500 text-white rounded-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={onClickJoinRoom}
