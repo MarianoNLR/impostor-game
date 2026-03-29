@@ -57,6 +57,7 @@ export function startGame(socket: Socket, io: Server, roomId: string) {
 
         console.log(`Game started in room ${roomId}. Initial game state:`, room.players);
         io.to(roomId).emit("gameStarted", { room: getGameState(roomId) });
+        io.emit("roomsUpdated", { rooms: roomRepository.findAll().map(r => ({ id: r.id, name: r.name, players: r.players, host: r.host, game: r.game })) });
         setTimeout(() => {
             startTurn(io, roomId);    
         }, 300)
