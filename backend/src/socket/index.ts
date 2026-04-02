@@ -1,5 +1,5 @@
 import { Server, Socket } from "socket.io"
-import { registerRoomHandlers } from "./roomHandlers"
+import { registerRoomHandlers } from "../room/roomHandlers"
 import { Room } from "../types";
 import { registerGameHandlers } from "../game/gameHandlers";
 import { roomRepository } from "../repositories/roomRepository";
