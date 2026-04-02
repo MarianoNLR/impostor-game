@@ -13,6 +13,8 @@ export type Room = {
   players: Player[];
   game: GameState | null;
   chat: ChatRoom | null;
+  isPrivate: boolean;
+  passwordHash?: string | null;
 }
 
 export type GameState = {
