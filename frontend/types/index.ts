@@ -11,6 +11,7 @@ export type Room = {
   host: string;
   players: Player[];
   game: GameState | null;
+  isPrivate: boolean;
 };
 
 export type GameState = {
