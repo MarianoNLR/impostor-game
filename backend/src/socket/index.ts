@@ -32,7 +32,14 @@ export const registerSocketHandlers = (io: Server) => {
         if (room.players.length === 0) {
           roomRepository.delete(roomId);
           console.log(`Room ${roomId} deleted (empty)`);
-          io.emit("roomsUpdated", {rooms: roomRepository.findAll().map(room => ({ id: room.id, name: room.name, players: room.players, host: room.host, game: room.game }))});
+          io.emit("roomsUpdated", {rooms: roomRepository.findAll().map(room => ({ 
+            id: room.id, 
+            name: room.name, 
+            players: room.players, 
+            host: room.host, 
+            game: room.game, 
+            chat: room.chat, 
+            isPrivate: room.isPrivate }))});
         }
     })
 
