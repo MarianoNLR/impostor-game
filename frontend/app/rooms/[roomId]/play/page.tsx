@@ -4,14 +4,13 @@ import { useParams } from "next/navigation"
 import { useEffect, useState } from "react";
 import { Player, Room, GameState } from '@/types/index';
 import { useSocket } from '@/context/SocketContext';
-import { PlayerCardGame } from "@/components/game/PlayerCardGame";
 import { Timer } from '@/components/lobby/Timer'
 import { VotingPhaseUI } from "@/components/game/VotingPhaseUI";
 import { DiscussionPhaseUI } from "@/components/game/DiscussionPhaseUI";
 import { FinishedPhaseUI } from "@/components/game/FinishedPhaseUI";
 import { WordsPhaseUI } from "@/components/game/WordsPhaseUI";
+import { CategoryPhaseUI } from "@/components/game/CategoryPhaseUI";
 import { useRouter } from "next/navigation";
-import { RoomChat } from "@/components/game/RoomChat";
 
 type PlayerInfo = {
     role: string;
@@ -25,17 +24,15 @@ export default function PlayPage() {
     const socket = useSocket();
     const router = useRouter();
     const { roomId } = params;
-    //const storedData = JSON.parse(localStorage.getItem("playerGameInfo") || "{}");
     const [playerInfo, setPlayerInfo] = useState<PlayerInfo | null>(null);
-    // const [role, setRole] = useState(storedData.role || "undefined");
-    // const [players, setPlayers] = useState<Player[]>(storedData.players || []);
     const [gameState, setGameState] = useState<GameState | null>(null);
-    const [wordInput, setWordInput] = useState("");
     const [playerAlreadyVoted, setPlayerAlreadyVoted] = useState(false)
     const [turnTimer, setTurnTimer] = useState<{ timeLeft: number; duration: number }>({ timeLeft: 30, duration: 30 });
     const [currentUserId, setCurrentUserId] = useState("");
+    const [roomHost, setRoomHost] = useState("");
 
     const gamePhasesMap : { [key: string]: string } = {
+        "category": "Categoria",
         "words": "Palabras",
         "voting": "Votación",
         "discussion": "Discusión",
@@ -79,6 +76,12 @@ export default function PlayPage() {
     }, [socket, roomId])
 
     useEffect(() => {
+        if (gameState?.phase === "words") {
+            socket?.emit("getMyRole", { roomId });
+        }
+    }, [socket, roomId, gameState?.phase])
+
+    useEffect(() => {
         socket?.emit("getGameState", { roomId })
         const handleGameState = ({ room }: { room: Room | null }) => {
             if (!room) {
@@ -90,6 +93,7 @@ export default function PlayPage() {
                  return 
             }
             setGameState(room.game)
+            setRoomHost(room.host)
         }
 
         socket?.on("gameState", handleGameState)
@@ -98,6 +102,7 @@ export default function PlayPage() {
             socket?.off("gameState", handleGameState)
         }
     }, [socket, roomId])
+
 
     useEffect(() => {
         const handleTimerUpdate = ({ timeLeft, duration }: { timeLeft: number; duration: number }) => {
@@ -125,6 +130,10 @@ export default function PlayPage() {
         setPlayerAlreadyVoted(true)
     }
 
+    const onSelectCategory = (category: string) => {
+        socket?.emit("selectCategory", { roomId, category });
+    }
+
     if (gameState.phase === "finished") {
         setTimeout(() => {
             router.push(`/rooms/${roomId}`);
@@ -135,6 +144,12 @@ export default function PlayPage() {
             <section className="mx-auto w-full max-w-5xl text-center flex flex-col items-center gap-6">
             <h1 className="text-4xl">{gameState ? `Fase: ${gamePhasesMap[gameState.phase]}` : "Cargando..."}</h1>
             <h2 className="text-2xl">Tu rol es: {playerInfo ? roleMap[playerInfo.role] : "Cargando..."}</h2>
+            {gameState.phase === "category" && (
+                <CategoryPhaseUI
+                    isHost={roomHost === currentUserId}
+                    onSelectCategory={onSelectCategory}
+                />
+            )}
             { gameState.phase === "words" && (
                 <WordsPhaseUI 
                     players={playerInfo?.players || []}
@@ -173,7 +188,9 @@ export default function PlayPage() {
                 />
             )}
             {/* Timer */}
-            {gameState.phase !== "finished" && <Timer timeLeft={turnTimer.timeLeft} duration={turnTimer.duration}/>}
+            {gameState.phase !== "finished" && gameState.phase !== "category" && (
+                <Timer timeLeft={turnTimer.timeLeft} duration={turnTimer.duration}/>
+            )}
             </section>
            
         </main>
