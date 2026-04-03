@@ -1,9 +1,10 @@
 import { Server, Socket } from "socket.io"
-import { startGame, submitWord, submitVote, getMyRole } from './gameService'
+import { startGame, submitWord, submitVote, getMyRole, selectCategory } from './gameService'
 import { getGameState } from "./gameUtils"
 
 export const registerGameHandlers = (io: Server, socket: Socket) => {
     socket.on("startGame", ({ roomId }) => startGame(socket, io, roomId))
+    socket.on("selectCategory", ({ roomId, category }) => selectCategory(socket, io, roomId, category))
     socket.on("submitWord", ({ roomId, word }) => submitWord(socket, io, roomId, word))
     socket.on("submitVote", ({ roomId, votedPlayerId }) => submitVote(socket, io, roomId, votedPlayerId))
     socket.on("getGameState", ({ roomId }) => {
