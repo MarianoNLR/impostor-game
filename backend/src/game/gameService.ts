@@ -4,20 +4,17 @@ import { GameState, Room, Player } from "../types"
 import { getGameState } from "./gameUtils"
 import { startTimer } from "./timerService"
 import { clearRoomMessages, getRoomChat } from "./chatService"
-import { getRandomWordWithRandomCategory } from "../data/words"
+import { getRandomWordByCategory, getRandomWordWithRandomCategory } from "../data/words"
 
 export function initializeGameData(room: Room) {
     if (room.game) {
         clearInterval(room.game.currentTimer!);
     }
 
-    // Get a random word and category for the game
-    const { word, category } = getRandomWordWithRandomCategory();
-
     const gameState : GameState = {
-        phase: "words",
-        word: word,
-        category: category,
+        phase: "category",
+        word: null,
+        category: null,
         turnOrder: room.players.map(player => player.id),
         currentTurnIndex: 0,
         votes: {},
@@ -65,9 +62,47 @@ export function startGame(socket: Socket, io: Server, roomId: string) {
             game: room.game, 
             chat: room.chat, 
             isPrivate: room.isPrivate }))});
-        setTimeout(() => {
-            startTurn(io, roomId);    
-        }, 300)
+        io.to(roomId).emit("gameState", { room: getGameState(roomId) });
+}
+
+export function selectCategory(socket: Socket, io: Server, roomId: string, category: string) {
+    const room = roomRepository.findById(roomId);
+    if (!room) {
+        console.log(`Room ID ${roomId} does not exist.`);
+        return socket.emit("categoryError", { roomId, error: "Room does not exist." });
+    }
+
+    if (!room.game) {
+        console.log(`Game has not started for room ID ${roomId}.`);
+        return socket.emit("categoryError", { roomId, error: "Game has not started." });
+    }
+
+    if (room.host !== socket.id) {
+        console.log(`Client ${socket.id} is not the host of room ${roomId}.`);
+        return socket.emit("categoryError", { roomId, error: "Only the host can select the category." });
+    }
+
+    if (room.game.phase !== "category") {
+        console.log(`Room ${roomId} is not in category phase.`);
+        return socket.emit("categoryError", { roomId, error: "Room is not in category phase." });
+    }
+
+    try {
+        const selection = category === "random" ? getRandomWordWithRandomCategory() : getRandomWordByCategory(category);
+        room.game.category = selection.category;
+        room.game.word = selection.word;
+        room.game.phase = "words";
+        room.game.currentTurnIndex = 0;
+        room.game.votes = {};
+        room.game.wordsSubmitted = {};
+
+        io.to(roomId).emit("gameState", { room: getGameState(roomId) });
+        startTurn(io, roomId);
+    } catch (error) {
+        const message = error instanceof Error ? error.message : "Invalid category selection.";
+        console.log(`Failed to select category for room ${roomId}: ${message}`);
+        socket.emit("categoryError", { roomId, error: message });
+    }
 }
 
 export function getMyRole(socket: Socket, io: Server, roomId: string) {

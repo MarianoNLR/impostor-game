@@ -265,13 +265,21 @@ export const wordsByCategory: Record<string, string[]> = {
     ],
 }
 
-export function getRandomWordWithRandomCategory() {
-    const categories = Object.keys(wordsByCategory);
-    const selectedCategory = categories[Math.floor(Math.random() * categories.length)];
-    const words = wordsByCategory[selectedCategory];
+export function getCategories() {
+    return Object.keys(wordsByCategory);
+}
+
+export function getRandomWordByCategory(category: string) {
+    const words = wordsByCategory[category];
     if (!words || words.length === 0) {
-        throw new Error(`No words available for category: ${selectedCategory}`);
+        throw new Error(`No words available for category: ${category}`);
     }
     const randomIndex = Math.floor(Math.random() * words.length);
-    return { word: words[randomIndex], category: selectedCategory };
+    return { word: words[randomIndex], category };
+}
+
+export function getRandomWordWithRandomCategory() {
+    const categories = getCategories();
+    const selectedCategory = categories[Math.floor(Math.random() * categories.length)];
+    return getRandomWordByCategory(selectedCategory);
 }
