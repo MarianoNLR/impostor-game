@@ -18,9 +18,9 @@ export type Room = {
 }
 
 export type GameState = {
-  phase: "voting" | "discussion" | "words" | "finished";
-  word: string;
-  category: string;
+  phase: "category" | "voting" | "discussion" | "words" | "finished";
+  word: string | null;
+  category: string | null;
   turnOrder: string[];
   currentTurnIndex: number;
   impostorIds: string[];
