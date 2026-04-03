@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import data from "./data/store";
 import { registerSocketHandlers } from "./socket";
 import roomRouter from "./routes/room";
+import categoriesRouter from "./routes/categories";
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ const io = new Server(httpServer, {
 app.use(cors({ origin: process.env.CLIENT_URL }));
 app.use(express.json());
 app.use("/rooms", roomRouter);
+app.use("/categories", categoriesRouter);
 
 registerSocketHandlers(io);
 
