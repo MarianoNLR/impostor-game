@@ -11,6 +11,7 @@ type RoomCreatedPayload = {
 };
 
 export default function Rooms() {
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "";
     const router = useRouter();
     const socket = useSocket();
     const [rooms, setRooms] = useState<Room[]>([]);
@@ -59,7 +60,7 @@ export default function Rooms() {
     }, [socket, router]);
 
     const getRooms = () => {
-        fetch(`http://localhost:3001/rooms`)
+        fetch(`${backendUrl}/rooms`)
         .then((res) => res.json())
         .then((data) => setRooms(data.rooms));
     }

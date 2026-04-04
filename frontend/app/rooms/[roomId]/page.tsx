@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { RoomChat } from '@/components/game/RoomChat';
 
 export default function RoomPage() {
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "";
     const router = useRouter();
     const params = useParams();
     const { roomId } = params;
@@ -32,7 +33,7 @@ export default function RoomPage() {
 
         const fetchRoomDetails = () => {
             // Fetch room details logic here
-            fetch(`http://localhost:3001/rooms/${roomId}`)
+            fetch(`${backendUrl}/rooms/${roomId}`)
             .then((res) => res.json())
             .then((data) => {
                 console.log("Room details:", data);
