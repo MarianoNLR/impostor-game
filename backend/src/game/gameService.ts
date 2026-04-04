@@ -425,8 +425,9 @@ export function checkWinCondition(room: Room) {
     if (room.game.phase === "finished") {
         console.log(`Game finished in room ${room.id}. Winner: ${room.game.winner}`);
         room.game.currentTimer = setTimeout(() => {
-        room.game!.currentTimer = null;
-        initializeGameData(room);
+            room.game!.currentTimer = null;
+            room.state = "lobby";
+            initializeGameData(room);
         }, 5000);
     }
 
