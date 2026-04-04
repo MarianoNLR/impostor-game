@@ -6,7 +6,7 @@ type PlayerCardProps = {
   nickname: string
   role?: "crewmate" | "impostor" | "unassigned"
   showRole?: boolean,
-  phase?: "voting" | "discussion" | "words" | "finished",
+  phase?: "category" | "voting" | "discussion" | "words" | "finished",
   roomId: string,
   wordsSubmitted?: Record<string, string[]>,
   playerAlreadyVoted?: boolean,
