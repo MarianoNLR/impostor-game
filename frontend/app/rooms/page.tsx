@@ -96,9 +96,9 @@ export default function Rooms() {
 
     return (
         <main className="flex flex-col items-center justify-center min-h-screen">
-            <h1 className="text-4xl font-bold mb-4">Rooms</h1>
+            <h1 className="text-4xl font-bold mb-4">Salas</h1>
             <div className="flex items-center justify-center gap-4 w-full max-w-md mb-8">
-                <button className="mt-4 p-2 pr-10 pl-10 bg-green-500 text-white rounded-sm" onClick={onClickCreateRoom}>Create Room</button>
+                <button className="mt-4 p-2 pr-10 pl-10 bg-green-500 text-white rounded-sm" onClick={onClickCreateRoom}>Crear Sala</button>
             </div>
             <div className="flex flex-col items-center justify-center gap-4 w-full">
                 {rooms.map((room, index) => (
@@ -109,7 +109,7 @@ export default function Rooms() {
             {isCreateModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
                     <div className="w-full max-w-md rounded-lg bg-gray-900 p-6 shadow-lg border border-gray-700">
-                        <h2 className="text-2xl font-bold text-white mb-4">Create Room</h2>
+                        <h2 className="text-2xl font-bold text-white mb-4">Crear Sala</h2>
 
                         <form className="space-y-4" onSubmit={onSubmitCreateRoom}>
                             <div>
@@ -138,7 +138,7 @@ export default function Rooms() {
                                         }
                                     }}
                                 />
-                                Hacer sala privada
+                                Sala Privada
                             </label>
 
                             {isPrivateRoom && (
