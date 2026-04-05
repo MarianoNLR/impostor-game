@@ -1,6 +1,6 @@
 'use client';
 
-import { useSocket } from '@/context/SocketContext';
+import { useNicknameState, useSocket } from '@/context/SocketContext';
 import { User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation"
@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation"
 export default function Home() {
   const socket = useSocket();
   const router = useRouter()
+  const { setHasNickname } = useNicknameState();
   const [nickname, setNickname] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -29,6 +30,7 @@ export default function Home() {
     const handleSetNickname = ({ ok }: { ok: boolean }) => {
       setIsSubmitting(false);
       if (ok) {
+        setHasNickname(true);
         router.push("/rooms");
       }
     };
@@ -37,7 +39,7 @@ export default function Home() {
     return () => {
       socket.off("set_nickname", handleSetNickname);
     };
-  }, [socket, router]);
+  }, [socket, router, setHasNickname]);
 
   const isDisabled = !nickname.trim() || isSubmitting;
 
