@@ -176,7 +176,7 @@ export function startDiscussionPhase(io: Server, roomId: string) {
     startTimer(
         io, 
         roomId, 
-        5, 
+        90, 
         () => {
             endDiscussionPhase(io, room);
         });
