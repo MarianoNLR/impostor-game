@@ -176,7 +176,7 @@ export function startDiscussionPhase(io: Server, roomId: string) {
     startTimer(
         io, 
         roomId, 
-        100, 
+        5, 
         () => {
             endDiscussionPhase(io, room);
         });
@@ -210,7 +210,7 @@ export function startVotingPhase(io: Server, roomId: string) {
 function endVotingPhase(io: Server, room: Room) {
     console.log(`Voting timer ended for room ID: ${room.id}`);
     room.game!.currentTimer = null;
-    countVotesCurrentRound(room);
+    countVotesCurrentRound(room, io);
     io.to(room.id).emit("gameState", { room: getGameState(room.id) });
     if (room.game!.phase === "finished") {
         return;
@@ -361,7 +361,7 @@ export function addWordToSubmissions(room: Room, playerId: string, word: string)
 
 }
 
-export function countVotesCurrentRound(room: Room) {
+export function countVotesCurrentRound(room: Room, io: Server) {
     if (!room.game) {
         console.log("Game state is not initialized.");
         return;
@@ -388,10 +388,10 @@ export function countVotesCurrentRound(room: Room) {
     }
 
     // Eliminate the player with the most votes
-    eliminatePlayer(room, mostVoted[0][0]);
+    eliminatePlayer(room, mostVoted[0][0], io);
 }
 
-export function eliminatePlayer(room: Room, playerId: string) {
+export function eliminatePlayer(room: Room, playerId: string, io: Server) {
     const player = room.players.find(p => p.id === playerId);
     if (player) {
         player.isAlive = false;
@@ -399,10 +399,10 @@ export function eliminatePlayer(room: Room, playerId: string) {
     }
 
     // After eliminating a player, check if the game has been won by either side
-    checkWinCondition(room);
+    checkWinCondition(room, io);
 }
 
-export function checkWinCondition(room: Room) {
+export function checkWinCondition(room: Room, io: Server) {
     if (!room.game) {
         console.log("Game state is not initialized.");
         return;
@@ -427,7 +427,22 @@ export function checkWinCondition(room: Room) {
         room.game.currentTimer = setTimeout(() => {
             room.game!.currentTimer = null;
             room.state = "lobby";
-            initializeGameData(room);
+            room.game = null;
+            room.players.forEach(player => {
+                player.isAlive = true;
+                player.role = "unassigned";
+            });
+            clearRoomMessages(room.id);
+            io.to(room.id).emit("chatHistory", { roomId: room.id, messages: getRoomChat(room.id) });
+            io.emit("roomsUpdated", { rooms: roomRepository.findAll().map(room => ({ 
+                id: room.id, 
+                name: room.name, 
+                players: room.players, 
+                host: room.host, 
+                game: room.game, 
+                chat: room.chat, 
+                isPrivate: room.isPrivate }))});
+            io.to(room.id).emit("gameState", { room: getGameState(room.id) });
         }, 5000);
     }
 
