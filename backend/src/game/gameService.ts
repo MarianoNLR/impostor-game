@@ -378,17 +378,29 @@ export function countVotesCurrentRound(room: Room, io: Server) {
     Object.values(room.game.votes).forEach(vote => {
         voteCounts[vote] = voteCounts[vote] ? voteCounts[vote] + 1 : 1;
     });
-    const mostVoted = Object.entries(voteCounts).sort(([, a], [, b]) => b - a);
+    let maxVotes = 0;
+    let mostVotedPlayerId: string | null = null;
+    let tiedAtMax = false;
 
-    // If there's a tie for the most votes, no one is eliminated
-    if (mostVoted.filter(([,count]) => count == mostVoted[0][1]).length > 1) {
+    for (const [playerId, count] of Object.entries(voteCounts)) {
+        if (count > maxVotes) {
+            maxVotes = count;
+            mostVotedPlayerId = playerId;
+            tiedAtMax = false;
+        } else if (count === maxVotes) {
+            tiedAtMax = true;
+        }
+    }
+
+    // If there's a tie for the most votes, no one is eliminated.
+    if (tiedAtMax || !mostVotedPlayerId) {
         console.log("Vote tied, no one is eliminated this round.");
         room.game.phase = "words";
         return;
     }
 
     // Eliminate the player with the most votes
-    eliminatePlayer(room, mostVoted[0][0], io);
+    eliminatePlayer(room, mostVotedPlayerId, io);
 }
 
 export function eliminatePlayer(room: Room, playerId: string, io: Server) {
