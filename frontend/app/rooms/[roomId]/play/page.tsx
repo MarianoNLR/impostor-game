@@ -144,6 +144,9 @@ export default function PlayPage() {
             <section className="mx-auto w-full max-w-5xl text-center flex flex-col items-center gap-6">
             <h1 className="text-4xl">{gameState ? `Fase: ${gamePhasesMap[gameState.phase]}` : "Cargando..."}</h1>
             <h2 className="text-2xl">Tu rol es: {playerInfo ? roleMap[playerInfo.role] : "Cargando..."}</h2>
+            {gameState.phase !== "category" && (
+                <h3 className="text-xl">Categoria actual: {gameState.category ?? "Cargando..."}</h3>
+            )}
             {gameState.phase === "category" && (
                 <CategoryPhaseUI
                     isHost={roomHost === currentUserId}
