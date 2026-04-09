@@ -2,6 +2,8 @@
 
 Juego estilo "impostor" con salas en tiempo real. El frontend esta hecho con Next.js y el backend con Express + Socket.IO. Se puede crear una sala, unirse, chatear y jugar por fases (categorias, palabras, discusion, votacion y final).
 
+🔴 Link: https://impostor-game-gamma-seven.vercel.app/
+
 ## Stack
 
 - Frontend: Next.js (App Router), React, Tailwind CSS, Socket.IO client
