@@ -21,6 +21,7 @@ export default function Rooms() {
     const [roomPassword, setRoomPassword] = useState("");
     const [formError, setFormError] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isJoining, setIsJoining] = useState(false);
 
     useEffect(() => {
         if (!socket) return;
@@ -39,10 +40,6 @@ export default function Rooms() {
             }
 
             setFormError("");
-            setIsCreateModalOpen(false);
-            setRoomName("");
-            setIsPrivateRoom(false);
-            setRoomPassword("");
             router.push(`/rooms/${roomId}`);
         };
 
@@ -67,9 +64,6 @@ export default function Rooms() {
 
     const onClickCreateRoom = () => {
         setFormError("");
-        setRoomName("");
-        setIsPrivateRoom(false);
-        setRoomPassword("");
         setIsCreateModalOpen(true);
     }
 
