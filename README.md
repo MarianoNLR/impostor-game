@@ -10,7 +10,7 @@ Juego estilo "impostor" con salas en tiempo real. El frontend esta hecho con Nex
 ## Estructura del repo
 
 - backend/: API y servidor de sockets
-- frontend/: UI con Next.js, React, Tailwind CSS
+- frontend/: Next.js, React, Tailwind CSS
 
 ## Variables de entorno (backend)
 
@@ -50,6 +50,23 @@ Backend:
 Frontend:
 
 - `npm run dev` inicia Next.js en modo desarrollo
+
+## Como correr en desarrollo utilizando Docker compose
+Es necesario tener instalado docker y ejecutandose en el sistema.
+
+Desde la carpeta raiz del proyecto ejecutar:
+
+```bash
+docker compose up --build
+```
+
+Frontend: http://localhost:3000
+Backend: http://localhost:3001
+
+Para detener los contenedores: 
+```bash
+docker compose down
+```
 
 ## Endpoints principales (backend)
 
